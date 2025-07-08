@@ -11,19 +11,16 @@ module FormtasticBootstrap
             options[:prepend_content],
             yield,
             add_on_content(options[:append]),
-            options[:append_content],
-            hint_html
+            options[:append_content]
           ].compact.join("\n").html_safe
 
           control_group_wrapping do
             control_label_html <<
             controls_wrapping(label: true) do
               if prepended_or_appended?(options)
-                template.content_tag(:div, :class => add_on_wrapper_classes(options).join(" ")) do
-                  input_content
-                end
+                [draw_addon_block(input_content), hint_html].join("\n").html_safe
               else
-                input_content
+                [input_content, hint_html].join("\n").html_safe
               end
             end
           end
@@ -33,9 +30,14 @@ module FormtasticBootstrap
           options[:prepend] || options[:prepend_content] || options[:append] || options[:append_content]
         end
 
+        def draw_addon_block(ic)
+          template.content_tag(:div, :class => add_on_wrapper_classes(options).compact.join(" ")) do
+            ic
+          end
+        end
         def add_on_content(content)
           return nil unless content
-          template.content_tag(:span, content, :class => 'add-on')
+          template.content_tag(:span, content, :class => 'input-group-addon')
         end
 
         def control_group_wrapping(&block)
@@ -74,7 +76,7 @@ module FormtasticBootstrap
 
         def add_on_wrapper_classes(options)
           [:prepend, :append, :prepend_content, :append_content].map do |key|
-            "input-#{key.to_s.gsub('_content', '')}" if options[key]
+            "input-group" if options[key]
           end
         end
       end
